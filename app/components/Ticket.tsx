@@ -65,13 +65,13 @@ export default function Ticket() {
         </div>
 
         {/* Teams */}
-        <div className="mt-8 space-y-3">
+        <div className="mt-12 space-y-3">
           {teams.map((team, i) => (
             <div key={i} className="flex items-center gap-4">
-              <span className="font-black text-2xl text-black w-10 text-right shrink-0">
+              <span className="font-black text-xl text-black w-10 text-right shrink-0">
                 {team.seed}
               </span>
-              <span className="font-medium text-lg tracking-tight text-gray-800 uppercase">
+              <span className="font-medium text-xl tracking-tight text-gray-800 uppercase truncate">
                 {team.name}
               </span>
             </div>
