@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
+import { Download, Trophy, DollarSign } from "lucide-react";
 import Ticket from "./Ticket";
 
 export default function PrinterReveal() {
@@ -27,13 +28,45 @@ export default function PrinterReveal() {
           onClick={handlePrint}
           className="bg-white text-black px-8 py-4 rounded-full font-bold tracking-widest uppercase hover:scale-105 transition-transform shadow-lg animate-pulse"
         >
-          Print My 2025 Ticket
+          Print My 2026 Ticket
         </button>
       )}
 
+      {/* LOTTO-style post-print buttons — top of screen */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: isFinished ? 1 : 0, y: isFinished ? 0 : -20 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className={`absolute top-12 w-full flex justify-center gap-8 z-50 ${!isFinished ? 'pointer-events-none' : ''}`}
+      >
+        {/* Download Button */}
+        <button className="flex flex-col items-center gap-3 group">
+          <div className="w-14 h-14 rounded-full bg-[#F4F4F0] border-[3px] border-black flex items-center justify-center cmyk-dropshadow group-active:scale-95 transition-transform">
+            <Download size={24} className="text-black" />
+          </div>
+          <span className="text-white text-[10px] font-bold tracking-widest uppercase font-compact">Download</span>
+        </button>
+
+        {/* Bracket Button */}
+        <button className="flex flex-col items-center gap-3 group">
+          <div className="w-14 h-14 rounded-full bg-[#F4F4F0] border-[3px] border-black flex items-center justify-center cmyk-dropshadow group-active:scale-95 transition-transform">
+            <Trophy size={24} className="text-black" />
+          </div>
+          <span className="text-white text-[10px] font-bold tracking-widest uppercase font-compact">Bracket</span>
+        </button>
+
+        {/* Pay Button */}
+        <a href="sms:6185580140&body=Hey Shawn, here is my March Madness payment!" className="flex flex-col items-center gap-3 group">
+          <div className="w-14 h-14 rounded-full bg-[#F4F4F0] border-[3px] border-black flex items-center justify-center cmyk-dropshadow group-active:scale-95 transition-transform">
+            <DollarSign size={24} className="text-black" />
+          </div>
+          <span className="text-white text-[10px] font-bold tracking-widest uppercase font-compact">Pay</span>
+        </a>
+      </motion.div>
+
       {/* Printer slot + ticket animation */}
       {(isPrinting || isFinished) && (
-        <div className="absolute bottom-0 w-full flex justify-center overflow-hidden pb-4 shadow-[inset_0_-20px_20px_-20px_rgba(0,0,0,0.8)]">
+        <div className="absolute bottom-0 w-full flex justify-center overflow-hidden pt-20 pb-8">
           {/* Slot shadow gradient */}
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-10" />
 
@@ -50,29 +83,6 @@ export default function PrinterReveal() {
             >
               <Ticket />
             </motion.div>
-
-            {/* Post-print buttons */}
-            {isFinished && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="flex flex-wrap justify-center gap-3 mt-6"
-              >
-                <button className="px-6 py-2.5 rounded-full border border-white/40 text-white text-sm font-semibold tracking-wide hover:bg-white/10 transition-colors">
-                  Download Ticket
-                </button>
-                <button className="px-6 py-2.5 rounded-full border border-white/40 text-white text-sm font-semibold tracking-wide hover:bg-white/10 transition-colors">
-                  View Full Bracket
-                </button>
-                <a
-                  href="sms:6185580140&body=Hey Shawn, here is my March Madness payment!"
-                  className="px-6 py-2.5 rounded-full border border-white/40 text-white text-sm font-semibold tracking-wide hover:bg-white/10 transition-colors"
-                >
-                  Pay via Apple Cash
-                </a>
-              </motion.div>
-            )}
           </motion.div>
         </div>
       )}

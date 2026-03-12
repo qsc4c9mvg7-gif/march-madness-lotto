@@ -96,7 +96,7 @@ export default function Ticket() {
 
         {/* Barcode */}
         <div className="flex justify-center mt-8">
-          <div className="relative flex h-16 scale-x-[1.4] origin-center">
+          <div className="relative flex h-10 scale-x-[1.8] origin-center">
             {/* Cyan offset layer */}
             <div className="absolute inset-0 flex translate-x-[0.6px] translate-y-[0.6px]" style={{ opacity: 0.4 }}>
               {barcodePattern.map((width, i) => (
