@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import confetti from "canvas-confetti";
 import { Download, Trophy, DollarSign } from "lucide-react";
 import Ticket from "./Ticket";
 
@@ -16,11 +15,10 @@ export default function PrinterReveal() {
 
   function handleAnimationComplete() {
     setIsFinished(true);
-    confetti({ particleCount: 150, spread: 80, origin: { y: 0.9 } });
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center overflow-hidden relative">
+    <div className="fixed inset-0 bg-slate-900 overflow-hidden flex flex-col items-center justify-center">
 
       {/* Pre-print button */}
       {!isPrinting && !isFinished && (
@@ -64,27 +62,28 @@ export default function PrinterReveal() {
         </a>
       </motion.div>
 
-      {/* Printer slot + ticket animation */}
+      {/* The Main Ticket Wrapper: Starts exactly at the bottom edge of the screen (top-[100%]) */}
       {(isPrinting || isFinished) && (
-        <div className="absolute bottom-0 w-full flex justify-center overflow-hidden pt-20 pb-8">
-          {/* Slot shadow gradient */}
-          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-10" />
-
+        <motion.div
+          className="absolute top-[100%] w-full flex justify-center z-40"
+          initial={{ y: "0%" }}
+          animate={{ y: isFinished ? "calc(-50vh - 50%)" : (isPrinting ? "-95%" : "0%") }}
+          transition={
+            isFinished
+              ? { duration: 0.6, ease: "easeOut" }
+              : { duration: 3.5, ease: (t) => Math.floor(t * 14) / 14 }
+          }
+          onAnimationComplete={() => { if (isPrinting && !isFinished) handleAnimationComplete(); }}
+        >
+          {/* The Jitter & Scale Wrapper */}
           <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: isPrinting ? "0%" : "100%" }}
-            transition={{ duration: 3.5, ease: (t) => Math.floor(t * 14) / 14 }}
-            onAnimationComplete={handleAnimationComplete}
+            animate={{ x: isPrinting && !isFinished ? [-1, 2, -2, 1, 0] : 0 }}
+            transition={{ duration: 0.1, repeat: isPrinting && !isFinished ? Infinity : 0, ease: 'linear' }}
             className="w-full max-w-sm px-4"
           >
-            <motion.div
-              animate={{ x: isPrinting && !isFinished ? [-1, 2, -2, 1, 0] : 0 }}
-              transition={{ duration: 0.1, repeat: isPrinting && !isFinished ? Infinity : 0, ease: "linear", times: [0, 0.25, 0.5, 0.75, 1] }}
-            >
-              <Ticket />
-            </motion.div>
+            <Ticket />
           </motion.div>
-        </div>
+        </motion.div>
       )}
 
     </div>

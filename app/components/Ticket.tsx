@@ -19,6 +19,9 @@ export default function Ticket() {
       {/* Ink eraser halftone — texturizes dark pixels only */}
       <div className="absolute inset-0 pointer-events-none halftone-ink-eraser mix-blend-lighten opacity-15 z-20 pr-10"></div>
 
+      {/* Cream halftone — dot texture across ticket body */}
+      <div className="absolute inset-0 pointer-events-none halftone-circle z-10 pr-10 opacity-50"></div>
+
       {/* Right Banner */}
       <div className="absolute inset-y-0 right-0 w-10 bg-[#d9253a] border-l-[3px] border-[#FCEE21] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 pointer-events-none halftone-banner opacity-40 mix-blend-multiply z-0"></div>
@@ -47,7 +50,7 @@ export default function Ticket() {
           {["L", "O", "T", "T", "O"].map((letter, i) => (
             <div
               key={i}
-              className="w-12 h-12 flex items-center justify-center rounded-full border-[3px] border-black text-3xl font-black cmyk-boxbleed"
+              className="relative w-12 h-12 flex items-center justify-center rounded-full border-[3px] border-black text-3xl font-black cmyk-boxbleed overflow-hidden"
             >
               {letter}
             </div>
@@ -71,7 +74,7 @@ export default function Ticket() {
               <span className="font-black text-xl text-black w-10 text-right shrink-0">
                 {team.seed}
               </span>
-              <span className="font-medium text-xl tracking-tight text-gray-800 uppercase truncate">
+              <span className="font-medium text-xl tracking-tight text-gray-800 uppercase truncate cmyk-text-subtle">
                 {team.name}
               </span>
             </div>
@@ -89,7 +92,7 @@ export default function Ticket() {
             ].map((item, i) => (
               <React.Fragment key={i}>
                 <div className="text-left font-black text-sm text-black">{item.amount}</div>
-                <div className="text-left font-medium text-sm text-gray-800 flex items-center">{item.round}</div>
+                <div className="text-left font-medium text-sm text-gray-800 flex items-center cmyk-text-subtle">{item.round}</div>
               </React.Fragment>
             ))}
         </div>
@@ -98,14 +101,14 @@ export default function Ticket() {
         <div className="flex justify-center mt-8">
           <div className="relative flex h-10 scale-x-[1.8] origin-center">
             {/* Cyan offset layer */}
-            <div className="absolute inset-0 flex translate-x-[0.6px] translate-y-[0.6px]" style={{ opacity: 0.4 }}>
+            <div className="absolute inset-0 flex translate-x-[0.6px] translate-y-[0.6px]" style={{ opacity: 0.2 }}>
               {barcodePattern.map((width, i) => (
                 <div key={i} className={`h-full ${i % 2 === 0 ? "" : "bg-transparent"}`}
                   style={{ width: `${width}px`, backgroundColor: i % 2 === 0 ? "rgba(0,255,255,1)" : "transparent" }} />
               ))}
             </div>
             {/* Magenta offset layer */}
-            <div className="absolute inset-0 flex -translate-x-[0.6px] -translate-y-[0.6px]" style={{ opacity: 0.4 }}>
+            <div className="absolute inset-0 flex -translate-x-[0.6px] -translate-y-[0.6px]" style={{ opacity: 0.2 }}>
               {barcodePattern.map((width, i) => (
                 <div key={i}
                   style={{ width: `${width}px`, height: "100%", backgroundColor: i % 2 === 0 ? "rgba(255,0,255,1)" : "transparent" }} />
