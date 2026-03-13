@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Download, Trophy, DollarSign } from "lucide-react";
+import { Share, Trophy, DollarSign } from "lucide-react";
 import Ticket from "./Ticket";
 
 export default function PrinterReveal() {
   const [isPrinting, setIsPrinting] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+  const ticketRef = useRef<HTMLDivElement>(null);
 
   function handlePrint() {
     setIsPrinting(true);
@@ -17,6 +18,27 @@ export default function PrinterReveal() {
     setIsFinished(true);
   }
 
+  async function handleDownload() {
+    if (!ticketRef.current) return;
+    try {
+      const domtoimage = (await import("dom-to-image-more")).default;
+      const dataUrl = await domtoimage.toPng(ticketRef.current, { scale: 3 });
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], "march-madness-ticket.png", { type: "image/png" });
+
+      if (navigator.share) {
+        await navigator.share({ files: [file] });
+      } else {
+        const link = document.createElement("a");
+        link.download = "march-madness-ticket.png";
+        link.href = dataUrl;
+        link.click();
+      }
+    } catch (err) {
+      alert("Download error: " + String(err));
+    }
+  }
+
   return (
     <div className="fixed inset-0 bg-slate-900 overflow-hidden flex flex-col items-center justify-center">
 
@@ -24,48 +46,16 @@ export default function PrinterReveal() {
       {!isPrinting && !isFinished && (
         <button
           onClick={handlePrint}
-          className="bg-white text-black px-8 py-4 rounded-full font-bold tracking-widest uppercase hover:scale-105 transition-transform shadow-lg animate-pulse"
+          className="bg-transparent text-white border-[2px] border-white px-8 py-4 rounded-full font-bold tracking-widest uppercase hover:scale-105 transition-transform shadow-lg animate-pulse"
         >
-          Print My 2026 Ticket
+          Print Ticket
         </button>
       )}
-
-      {/* LOTTO-style post-print buttons — top of screen */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: isFinished ? 1 : 0, y: isFinished ? 0 : -20 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className={`absolute top-12 w-full flex justify-center gap-8 z-50 ${!isFinished ? 'pointer-events-none' : ''}`}
-      >
-        {/* Download Button */}
-        <button className="flex flex-col items-center gap-3 group">
-          <div className="w-14 h-14 rounded-full bg-[#F4F4F0] border-[3px] border-black flex items-center justify-center cmyk-dropshadow group-active:scale-95 transition-transform">
-            <Download size={24} className="text-black" />
-          </div>
-          <span className="text-white text-[10px] font-bold tracking-widest uppercase font-compact">Download</span>
-        </button>
-
-        {/* Bracket Button */}
-        <button className="flex flex-col items-center gap-3 group">
-          <div className="w-14 h-14 rounded-full bg-[#F4F4F0] border-[3px] border-black flex items-center justify-center cmyk-dropshadow group-active:scale-95 transition-transform">
-            <Trophy size={24} className="text-black" />
-          </div>
-          <span className="text-white text-[10px] font-bold tracking-widest uppercase font-compact">Bracket</span>
-        </button>
-
-        {/* Pay Button */}
-        <a href="sms:6185580140&body=Hey Shawn, here is my March Madness payment!" className="flex flex-col items-center gap-3 group">
-          <div className="w-14 h-14 rounded-full bg-[#F4F4F0] border-[3px] border-black flex items-center justify-center cmyk-dropshadow group-active:scale-95 transition-transform">
-            <DollarSign size={24} className="text-black" />
-          </div>
-          <span className="text-white text-[10px] font-bold tracking-widest uppercase font-compact">Pay</span>
-        </a>
-      </motion.div>
 
       {/* The Main Ticket Wrapper: Starts exactly at the bottom edge of the screen (top-[100%]) */}
       {(isPrinting || isFinished) && (
         <motion.div
-          className="absolute top-[100%] w-full flex justify-center z-40"
+          className="absolute top-[100%] w-full flex flex-col items-center z-40"
           initial={{ y: "0%" }}
           animate={{ y: isFinished ? "calc(-50vh - 50%)" : (isPrinting ? "-95%" : "0%") }}
           transition={
@@ -80,8 +70,27 @@ export default function PrinterReveal() {
             animate={{ x: isPrinting && !isFinished ? [-1, 2, -2, 1, 0] : 0 }}
             transition={{ duration: 0.1, repeat: isPrinting && !isFinished ? Infinity : 0, ease: 'linear' }}
             className="w-full max-w-sm px-4"
+            ref={ticketRef}
           >
             <Ticket />
+          </motion.div>
+
+          {/* Post-print buttons — sit below ticket, travel with it */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isFinished ? 1 : 0 }}
+            transition={{ duration: 0.5, delay: 1.1 }}
+            className={`flex justify-center gap-6 mt-8 ${!isFinished ? 'pointer-events-none' : ''}`}
+          >
+            <button onClick={handleDownload} className="w-10 h-10 rounded-full bg-transparent border-[2px] border-white flex items-center justify-center active:scale-95 transition-transform" style={{ borderColor: 'white', color: 'white' }}>
+              <Share size={16} style={{ color: 'white' }} />
+            </button>
+            <button className="w-10 h-10 rounded-full bg-transparent border-[2px] border-white flex items-center justify-center active:scale-95 transition-transform" style={{ borderColor: 'white', color: 'white' }}>
+              <Trophy size={16} style={{ color: 'white' }} />
+            </button>
+            <a href="sms:6185580140&body=Hey Shawn, here is my March Madness payment!" className="w-10 h-10 rounded-full bg-transparent border-[2px] border-white flex items-center justify-center active:scale-95 transition-transform" style={{ borderColor: 'white', color: 'white' }}>
+              <DollarSign size={16} style={{ color: 'white' }} />
+            </a>
           </motion.div>
         </motion.div>
       )}
