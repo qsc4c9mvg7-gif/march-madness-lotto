@@ -3,16 +3,14 @@
 import React from "react";
 import { Dribbble } from "lucide-react";
 
-const teams = [
-  { seed: "09", name: "CREIGHTON" },
-  { seed: "10", name: "VANDERBILT" },
-  { seed: "16", name: "MOUNT ST. MARY'S" },
-  { seed: "16", name: "ALABAMA STATE" },
-];
-
 const barcodePattern = [3,1,1,2,4,1,1,3,2,1,1,2,3,1,4,1,1,2,1,3,2,1,1,4,1,2,3,1,1,2,4,1,1,3,1,2,1,1,4,2,1,3,1,1,2,4,1,1,3,2,1,1,4,1,2,3,1,1,2,1,4,1,1,3,2,1];
 
-export default function Ticket() {
+interface TicketProps {
+  name?: string;
+  teams?: Array<{ seed: string; name: string }>;
+}
+
+export default function Ticket({ name = "PLAYER", teams = [] }: TicketProps) {
   return (
     <div className="relative max-w-sm w-full mx-auto bg-[#F4F4F0] paper-texture rounded-xl shadow-2xl overflow-hidden font-compact text-black cmyk-text">
 
@@ -67,8 +65,14 @@ export default function Ticket() {
           </div>
         </div>
 
+        {/* Ticket Holder */}
+        <div className="mt-8">
+          <p className="text-xs text-gray-500 tracking-wider uppercase">Ticket Holder</p>
+          <p className="text-lg font-black uppercase tracking-tight">{name}</p>
+        </div>
+
         {/* Teams */}
-        <div className="mt-12 space-y-3">
+        <div className="mt-4 space-y-3">
           {teams.map((team, i) => (
             <div key={i} className="flex items-center gap-4">
               <span className="font-black text-xl text-black w-10 text-right shrink-0">
@@ -82,7 +86,7 @@ export default function Ticket() {
         </div>
 
         {/* Payouts */}
-        <div className="grid grid-cols-[max-content_max-content] gap-x-3 gap-y-0.5 justify-center mx-auto mt-12">
+        <div className="grid grid-cols-[max-content_max-content] gap-x-3 gap-y-0.5 justify-center mx-auto mt-8">
             {[
               { amount: "$5.00",  round: "ROUND OF 32" },
               { amount: "$10.00", round: "SWEET 16" },

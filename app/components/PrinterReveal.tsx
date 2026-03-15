@@ -1,14 +1,29 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Share, Trophy, DollarSign } from "lucide-react";
 import Ticket from "./Ticket";
+import BracketView from "./BracketView";
 
-export default function PrinterReveal() {
+interface PrinterRevealProps {
+  name?: string;
+  teams?: Array<{ seed: string; name: string }>;
+}
+
+export default function PrinterReveal({ name = "PLAYER", teams = [] }: PrinterRevealProps) {
   const [isPrinting, setIsPrinting] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+  const [hasSeenAnimation, setHasSeenAnimation] = useState(false);
+  const [showBracket, setShowBracket] = useState(false);
   const ticketRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (localStorage.getItem("ticketPrinted")) {
+      setHasSeenAnimation(true);
+      setIsFinished(true);
+    }
+  }, []);
 
   function handlePrint() {
     setIsPrinting(true);
@@ -16,13 +31,21 @@ export default function PrinterReveal() {
 
   function handleAnimationComplete() {
     setIsFinished(true);
+    localStorage.setItem("ticketPrinted", "true");
   }
 
   async function handleDownload() {
     if (!ticketRef.current) return;
     try {
       const domtoimage = (await import("dom-to-image-more")).default;
+
+      // Temporarily remove SVG-based CSS backgrounds to avoid dom-to-image 404 errors
+      const ticket = ticketRef.current.querySelector(".paper-texture") as HTMLElement | null;
+      if (ticket) ticket.classList.remove("paper-texture");
+
       const dataUrl = await domtoimage.toPng(ticketRef.current, { scale: 3 });
+
+      if (ticket) ticket.classList.add("paper-texture");
       const blob = await (await fetch(dataUrl)).blob();
       const file = new File([blob], "march-madness-ticket.png", { type: "image/png" });
 
@@ -42,6 +65,14 @@ export default function PrinterReveal() {
   return (
     <div className="fixed inset-0 bg-slate-900 overflow-hidden flex flex-col items-center justify-center">
 
+      {showBracket && (
+        <BracketView
+          userName={name}
+          userTeamCount={teams.length}
+          onClose={() => setShowBracket(false)}
+        />
+      )}
+
       {/* Pre-print button */}
       {!isPrinting && !isFinished && (
         <button
@@ -56,7 +87,7 @@ export default function PrinterReveal() {
       {(isPrinting || isFinished) && (
         <motion.div
           className="absolute top-[100%] w-full flex flex-col items-center z-40"
-          initial={{ y: "0%" }}
+          initial={{ y: hasSeenAnimation ? "calc(-50vh - 50%)" : "0%" }}
           animate={{ y: isFinished ? "calc(-50vh - 50%)" : (isPrinting ? "-95%" : "0%") }}
           transition={
             isFinished
@@ -72,7 +103,7 @@ export default function PrinterReveal() {
             className="w-full max-w-sm px-4"
             ref={ticketRef}
           >
-            <Ticket />
+            <Ticket name={name} teams={teams} />
           </motion.div>
 
           {/* Post-print buttons — sit below ticket, travel with it */}
@@ -85,7 +116,7 @@ export default function PrinterReveal() {
             <button onClick={handleDownload} className="w-10 h-10 rounded-full bg-transparent border-[2px] border-white flex items-center justify-center active:scale-95 transition-transform" style={{ borderColor: 'white', color: 'white' }}>
               <Share size={16} style={{ color: 'white' }} />
             </button>
-            <button className="w-10 h-10 rounded-full bg-transparent border-[2px] border-white flex items-center justify-center active:scale-95 transition-transform" style={{ borderColor: 'white', color: 'white' }}>
+            <button onClick={() => setShowBracket(true)} className="w-10 h-10 rounded-full bg-transparent border-[2px] border-white flex items-center justify-center active:scale-95 transition-transform" style={{ borderColor: 'white', color: 'white' }}>
               <Trophy size={16} style={{ color: 'white' }} />
             </button>
             <a href="sms:6185580140&body=Hey Shawn, here is my March Madness payment!" className="w-10 h-10 rounded-full bg-transparent border-[2px] border-white flex items-center justify-center active:scale-95 transition-transform" style={{ borderColor: 'white', color: 'white' }}>

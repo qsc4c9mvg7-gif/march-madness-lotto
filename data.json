@@ -1,0 +1,19 @@
+{
+  "users": {
+    "shawn-123": {
+      "name": "Shawn",
+      "teams": [
+        { "seed": "09", "name": "CREIGHTON" },
+        { "seed": "10", "name": "VANDERBILT" }
+      ]
+    },
+    "bob-456": {
+      "name": "Uncle Bob",
+      "teams": [
+        { "seed": "01", "name": "DUKE" },
+        { "seed": "16", "name": "STETSON" },
+        { "seed": "04", "name": "AUBURN" }
+      ]
+    }
+  }
+}

@@ -1,9 +1,5 @@
-import PrinterReveal from "./components/PrinterReveal";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <main className="min-h-screen bg-slate-900">
-      <PrinterReveal />
-    </main>
-  );
+  redirect("/shawn-123");
 }
