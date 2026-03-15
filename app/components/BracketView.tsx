@@ -136,28 +136,31 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
       </div>
 
       {/* Bottom Bar — Round Navigation */}
-      <div className="absolute bottom-0 w-full bg-black border-t border-white/10 pb-8 pt-4 px-6 z-20">
-        <div className="flex items-center justify-between">
+      <div className="absolute bottom-0 w-full bg-[#d9253a] border-t-[3px] border-[#FCEE21] z-20 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none halftone-banner opacity-40 mix-blend-multiply z-0" />
+        <div className="relative z-10 flex items-center justify-between px-6 py-3">
           <button
             onClick={() => setCurrentRoundIndex((i) => Math.max(0, i - 1))}
-            className="text-white disabled:text-white/20 transition-colors"
+            className="text-white disabled:text-white/30 transition-colors"
             disabled={currentRoundIndex === 0}
           >
             <ChevronLeft size={24} />
           </button>
 
-          <span className="text-white text-xs font-bold tracking-widest uppercase">
+          <span className="text-white text-base font-bold tracking-widest uppercase font-compact">
             {rounds[currentRoundIndex]}
           </span>
 
           <button
             onClick={() => setCurrentRoundIndex((i) => Math.min(rounds.length - 1, i + 1))}
-            className="text-white disabled:text-white/20 transition-colors"
+            className="text-white disabled:text-white/30 transition-colors"
             disabled={currentRoundIndex === rounds.length - 1}
           >
             <ChevronRight size={24} />
           </button>
         </div>
+        {/* Safe area spacer */}
+        <div style={{ height: 'env(safe-area-inset-bottom)' }} />
       </div>
 
     </div>
