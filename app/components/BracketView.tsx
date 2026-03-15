@@ -6,7 +6,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface BracketProps {
   userName: string;
   userTeamCount: number;
-  onClose: () => void;
 }
 
 const rounds = ["Round of 64", "Round of 32", "Sweet 16", "Elite 8", "Final 4", "Championship"];
@@ -27,7 +26,7 @@ const mockRegions = [
   },
 ];
 
-export default function BracketView({ userName, userTeamCount, onClose }: BracketProps) {
+export default function BracketView({ userName, userTeamCount }: BracketProps) {
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
   const [filter, setFilter] = useState<"all" | "mine">("all");
 
@@ -38,7 +37,7 @@ export default function BracketView({ userName, userTeamCount, onClose }: Bracke
 
       {/* Top Bar */}
       <div className="bg-slate-900 pt-12 pb-4 px-4 z-20">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-start">
           {/* Filter toggle — March Madness badge style */}
           <div className="flex items-stretch font-compact">
             <button
@@ -62,14 +61,6 @@ export default function BracketView({ userName, userTeamCount, onClose }: Bracke
               {userLabel}
             </button>
           </div>
-
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="text-white/60 text-xs font-bold tracking-widest uppercase hover:text-white transition-colors"
-          >
-            ← Ticket
-          </button>
         </div>
       </div>
 
