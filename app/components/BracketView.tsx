@@ -157,7 +157,7 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
     <div className="fixed inset-0 bg-slate-900 z-50 flex flex-col font-compact lg:hidden">
 
       {/* Top Bar */}
-      <div className="bg-slate-900 pt-12 pb-4 px-4 z-20">
+      <div className="bg-slate-900 pt-8 pb-4 px-4 z-20">
         <div className="flex items-center justify-start">
           {/* Filter toggle — March Madness badge style */}
           <div className="flex items-stretch font-compact">
@@ -217,7 +217,7 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
       </div>
 
       {/* Bottom Bar — Round Navigation */}
-      <div className="absolute bottom-0 w-full bg-[#d9253a] border-t-[3px] border-[#FCEE21] z-20 overflow-hidden">
+      <div className="absolute bottom-0 w-full bg-[#d9253a] border-t-[3px] border-[#FCEE21] z-40 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none halftone-banner opacity-40 mix-blend-multiply z-0" />
         <div className="relative z-10 flex items-center justify-between px-6 py-[11px]">
           <button

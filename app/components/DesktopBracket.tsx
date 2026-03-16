@@ -56,40 +56,41 @@ export function MiniCard({
   const t1wins = matchup.winner !== "" && matchup.winner === matchup.team1.name;
   const t2wins = matchup.winner !== "" && matchup.winner === matchup.team2.name;
 
-  const seedCls   = plain ? "text-black"   : "cmyk-text";
-  const nameCls   = plain ? "text-gray-800" : "cmyk-text-subtle";
   const textSize  = plain ? "text-[21px]"   : "text-xs";
   const ownerSize = plain ? "text-[14px]"   : "text-[9px]";
-  const shadowCls = plain ? ""              : "cmyk-dropshadow";
+  const seedWidth = plain ? "w-8"           : "w-5";
+  const seedBase  = plain ? "text-black"    : "";
+  const nameBase  = plain ? "text-gray-800" : "";
+  const ownerPad  = "pr-1";
 
   return (
-    <div className={`w-full bg-[#F4F4F0] paper-texture border-[2px] border-black rounded-lg p-3 relative overflow-hidden ${shadowCls}`}>
+    <div className="w-full bg-[#F4F4F0] paper-texture border-[2px] border-black rounded-lg p-3 relative overflow-hidden cmyk-dropshadow">
       <div className="absolute inset-0 pointer-events-none halftone-circle opacity-50 z-0" />
       <div className="absolute inset-0 pointer-events-none halftone-ink-eraser mix-blend-lighten opacity-15 z-10" />
       <div className="relative z-20 flex flex-col gap-2">
-        <div className={`flex items-center gap-2 rounded ${t1wins ? "bg-yellow-100/65" : ""}`}>
-          <span className={`font-black ${textSize} w-5 text-right shrink-0 ${seedCls} ${t2wins ? "opacity-40 line-through" : ""}`}>
+        <div className={`flex items-center gap-4 rounded ${t1wins ? "bg-yellow-100/65" : ""}`}>
+          <span className={`font-black ${textSize} ${seedWidth} text-right shrink-0 cmyk-text ${seedBase} ${t2wins ? "opacity-40 line-through" : ""}`}>
             {matchup.team1.seed}
           </span>
-          <span className={`font-medium ${textSize} uppercase min-w-0 flex-1 truncate ${nameCls} ${t2wins ? "opacity-40 line-through" : ""}`}>
+          <span className={`font-medium ${textSize} uppercase min-w-0 flex-1 truncate cmyk-text-subtle ${nameBase} ${t2wins ? "opacity-40 line-through" : ""}`}>
             {matchup.team1.name}
           </span>
           {matchup.team1.owner && (
-            <span className={`${ownerSize} text-gray-400 font-bold uppercase tracking-wide shrink-0 ${t2wins ? "opacity-40" : ""}`}>
+            <span className={`${ownerSize} ${ownerPad} text-gray-400 font-bold uppercase tracking-wide shrink-0 ${t2wins ? "opacity-40" : ""}`}>
               {matchup.team1.owner}
             </span>
           )}
         </div>
         <div className="border-t border-dashed border-black/20" />
-        <div className={`flex items-center gap-2 rounded ${t2wins ? "bg-yellow-100/65" : ""}`}>
-          <span className={`font-black ${textSize} w-5 text-right shrink-0 ${seedCls} ${t1wins ? "opacity-40 line-through" : ""}`}>
+        <div className={`flex items-center gap-4 rounded ${t2wins ? "bg-yellow-100/65" : ""}`}>
+          <span className={`font-black ${textSize} ${seedWidth} text-right shrink-0 cmyk-text ${seedBase} ${t1wins ? "opacity-40 line-through" : ""}`}>
             {matchup.team2.seed}
           </span>
-          <span className={`font-medium ${textSize} uppercase min-w-0 flex-1 truncate ${nameCls} ${t1wins ? "opacity-40 line-through" : ""}`}>
+          <span className={`font-medium ${textSize} uppercase min-w-0 flex-1 truncate cmyk-text-subtle ${nameBase} ${t1wins ? "opacity-40 line-through" : ""}`}>
             {matchup.team2.name}
           </span>
           {matchup.team2.owner && (
-            <span className={`${ownerSize} text-gray-400 font-bold uppercase tracking-wide shrink-0 ${t1wins ? "opacity-40" : ""}`}>
+            <span className={`${ownerSize} ${ownerPad} text-gray-400 font-bold uppercase tracking-wide shrink-0 ${t1wins ? "opacity-40" : ""}`}>
               {matchup.team2.owner}
             </span>
           )}

@@ -15,8 +15,10 @@ export default function PrinterReveal({ name = "PLAYER", teams = [] }: PrinterRe
   const [isFinished, setIsFinished] = useState(false);
   const [hasSeenAnimation, setHasSeenAnimation] = useState(false);
   const [showBracket, setShowBracket] = useState(false);
+  const [winH, setWinH] = useState(0);
 
   useEffect(() => {
+    setWinH(window.innerHeight);
     if (localStorage.getItem("ticketPrinted")) {
       setHasSeenAnimation(true);
       setIsFinished(true);
@@ -33,7 +35,7 @@ export default function PrinterReveal({ name = "PLAYER", teams = [] }: PrinterRe
   }
 
   return (
-    <div className="fixed inset-0 bg-slate-900 overflow-hidden flex flex-col items-center justify-center">
+    <div className="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center">
 
       {showBracket && (
         <BracketView
@@ -47,11 +49,11 @@ export default function PrinterReveal({ name = "PLAYER", teams = [] }: PrinterRe
         initial={{ opacity: 0 }}
         animate={{ opacity: isFinished ? 1 : 0 }}
         transition={{ duration: 0.5, delay: hasSeenAnimation ? 0 : 1.1 }}
-        className={`fixed top-0 right-0 pt-12 pr-4 z-[60] ${!isFinished ? 'pointer-events-none' : ''}`}
+        className={`fixed top-0 right-0 pt-8 pb-4 pr-4 z-[60] flex items-end ${!isFinished ? 'pointer-events-none' : ''}`}
       >
         <button
           onClick={() => setShowBracket(!showBracket)}
-          className="text-white/60 text-xs font-bold tracking-widest uppercase hover:text-white transition-colors"
+          className="text-white/60 text-sm font-bold tracking-widest uppercase hover:text-white transition-colors py-1"
         >
           {showBracket ? "← Ticket" : "Bracket →"}
         </button>
@@ -71,8 +73,8 @@ export default function PrinterReveal({ name = "PLAYER", teams = [] }: PrinterRe
       {(isPrinting || isFinished) && (
         <motion.div
           className="absolute top-[100%] w-full flex flex-col items-center z-40"
-          initial={{ y: hasSeenAnimation ? "calc(-100vh + 9rem)" : "0%" }}
-          animate={{ y: isFinished ? "calc(-100vh + 9rem)" : (isPrinting ? "-55%" : "0%") }}
+          initial={{ y: hasSeenAnimation ? -(winH - 80) : 0 }}
+          animate={{ y: isFinished ? -(winH - 80) : (isPrinting ? "-55%" : "0%") }}
           transition={
             isFinished
               ? { duration: 0.6, ease: "easeOut" }
