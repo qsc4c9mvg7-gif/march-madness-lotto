@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import DesktopBracket from "./DesktopBracket";
+import DesktopBracket, { MiniCard } from "./DesktopBracket";
 
 interface BracketProps {
   userName: string;
@@ -137,9 +137,19 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
     ];
     displaySections = [{ label: null, slots }];
   } else {
-    // First Four — show whatever is in the CSV
-    const slots = roundMatchups.map(toSlot);
-    displaySections = slots.length > 0 ? [{ label: null, slots }] : [];
+    // First Four — group by region so region headers appear
+    if (roundMatchups.length > 0) {
+      const regionsSeen: string[] = [];
+      roundMatchups.forEach((m) => {
+        if (m.region && !regionsSeen.includes(m.region)) regionsSeen.push(m.region);
+      });
+      displaySections = regionsSeen.map((region) => ({
+        label: region,
+        slots: roundMatchups.filter((m) => m.region === region).map(toSlot),
+      }));
+    } else {
+      displaySections = [];
+    }
   }
 
   return (
@@ -188,7 +198,7 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
             <div key={section.label ?? `section-${sIdx}`}>
               {/* Sticky Region Header — only for regional rounds */}
               {section.label && (
-                <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md py-2 border-y border-white/10 mb-4">
+                <div className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md py-2 border-y border-white/10 mb-4">
                   <h2 className="text-center text-white text-xs font-bold tracking-widest uppercase">
                     {section.label}
                   </h2>
@@ -196,65 +206,11 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
               )}
 
               {/* Matchup Cards */}
-              {section.slots.map((matchup, idx) => {
-                if (!matchup) {
-                  return (
-                    <div
-                      key={`placeholder-${sIdx}-${idx}`}
-                      className="border-[3px] border-dashed border-white/20 rounded-xl mx-4 mb-4 h-[120px]"
-                    />
-                  );
-                }
-
-                const team1Won = matchup.winner !== "" && matchup.winner === matchup.team1.name;
-                const team2Won = matchup.winner !== "" && matchup.winner === matchup.team2.name;
-
-                return (
-                  <div
-                    key={matchup.gameId || `${section.label}-${idx}`}
-                    className="bg-[#F4F4F0] paper-texture border-[3px] border-black rounded-xl mx-4 mb-4 p-4 relative overflow-hidden font-compact"
-                  >
-                    <div className="absolute inset-0 pointer-events-none halftone-circle opacity-50 z-0" />
-                    <div className="absolute inset-0 pointer-events-none halftone-ink-eraser mix-blend-lighten opacity-15 z-1" />
-                    <div className="relative z-10">
-
-                      {/* Team 1 */}
-                      <div className={`flex flex-col rounded-md ${team1Won ? "bg-yellow-100/50" : ""}`}>
-                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5 ml-14">
-                          {matchup.team1.owner}
-                        </span>
-                        <div className="flex items-center gap-4">
-                          <span className={`font-black text-xl text-black w-10 text-right shrink-0 cmyk-text ${team2Won ? "opacity-40 line-through" : ""}`}>
-                            {matchup.team1.seed}
-                          </span>
-                          <span className={`font-medium text-xl tracking-tight text-gray-800 uppercase truncate cmyk-text-subtle ${team2Won ? "opacity-40 line-through" : ""}`}>
-                            {matchup.team1.name}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Divider */}
-                      <div className="border-t border-dashed border-black/20 my-3 ml-14" />
-
-                      {/* Team 2 */}
-                      <div className={`flex flex-col rounded-md ${team2Won ? "bg-yellow-100/50" : ""}`}>
-                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5 ml-14">
-                          {matchup.team2.owner}
-                        </span>
-                        <div className="flex items-center gap-4">
-                          <span className={`font-black text-xl text-black w-10 text-right shrink-0 cmyk-text ${team1Won ? "opacity-40 line-through" : ""}`}>
-                            {matchup.team2.seed}
-                          </span>
-                          <span className={`font-medium text-xl tracking-tight text-gray-800 uppercase truncate cmyk-text-subtle ${team1Won ? "opacity-40 line-through" : ""}`}>
-                            {matchup.team2.name}
-                          </span>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                );
-              })}
+              {section.slots.map((matchup, idx) => (
+                <div key={matchup?.gameId ?? `slot-${sIdx}-${idx}`} className="mx-4 mb-3">
+                  <MiniCard matchup={matchup} plain />
+                </div>
+              ))}
             </div>
           ))
         )}
@@ -263,7 +219,7 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
       {/* Bottom Bar — Round Navigation */}
       <div className="absolute bottom-0 w-full bg-[#d9253a] border-t-[3px] border-[#FCEE21] z-20 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none halftone-banner opacity-40 mix-blend-multiply z-0" />
-        <div className="relative z-10 flex items-center justify-between px-6 py-3">
+        <div className="relative z-10 flex items-center justify-between px-6 py-[11px]">
           <button
             onClick={() => setCurrentRoundIndex((i) => Math.max(0, i - 1))}
             className="text-white disabled:text-white/30 transition-colors"
