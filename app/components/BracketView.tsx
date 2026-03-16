@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import DesktopBracket from "./DesktopBracket";
 
 interface BracketProps {
   userName: string;
@@ -9,6 +10,7 @@ interface BracketProps {
 }
 
 interface Matchup {
+  gameId: string;
   round: string;
   region: string;
   team1: { seed: string; name: string; owner: string };
@@ -43,6 +45,7 @@ function parseCSV(text: string): Matchup[] {
     if (!row["Team1_Name"]) continue;
 
     matchups.push({
+      gameId: row["Game_ID"] ?? "",
       round: row["Round"] ?? "",
       region: row["Region"] ?? "",
       team1: {
@@ -118,7 +121,8 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
   );
 
   return (
-    <div className="fixed inset-0 bg-slate-900 z-50 flex flex-col font-compact">
+    <>
+    <div className="fixed inset-0 bg-slate-900 z-50 flex flex-col font-compact lg:hidden">
 
       {/* Top Bar */}
       <div className="bg-slate-900 pt-12 pb-4 px-4 z-20">
@@ -180,7 +184,7 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
 
                 return (
                   <div
-                    key={`${region.name}-${idx}`}
+                    key={matchup.gameId || `${region.name}-${idx}`}
                     className="bg-[#F4F4F0] paper-texture border-[3px] border-black rounded-xl mx-4 mb-4 p-4 relative overflow-hidden font-compact"
                   >
                     <div className="absolute inset-0 pointer-events-none halftone-circle opacity-50 z-0" />
@@ -258,5 +262,7 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
       </div>
 
     </div>
+      <DesktopBracket matchups={matchups} filter={filter} userName={userName} />
+    </>
   );
 }

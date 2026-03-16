@@ -47,7 +47,7 @@ export default function PrinterReveal({ name = "PLAYER", teams = [] }: PrinterRe
         initial={{ opacity: 0 }}
         animate={{ opacity: isFinished ? 1 : 0 }}
         transition={{ duration: 0.5, delay: hasSeenAnimation ? 0 : 1.1 }}
-        className={`absolute top-0 right-0 pt-12 pr-4 z-50 ${!isFinished ? 'pointer-events-none' : ''}`}
+        className={`fixed top-0 right-0 pt-12 pr-4 z-[60] ${!isFinished ? 'pointer-events-none' : ''}`}
       >
         <button
           onClick={() => setShowBracket(!showBracket)}
