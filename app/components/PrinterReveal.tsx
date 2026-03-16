@@ -16,13 +16,17 @@ export default function PrinterReveal({ name = "PLAYER", teams = [] }: PrinterRe
   const [hasSeenAnimation, setHasSeenAnimation] = useState(false);
   const [showBracket, setShowBracket] = useState(false);
   const [winH, setWinH] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setWinH(window.innerHeight);
-    if (localStorage.getItem("ticketPrinted")) {
-      setHasSeenAnimation(true);
+    const printed = !!localStorage.getItem("ticketPrinted");
+    if (printed) {
       setIsFinished(true);
+      setHasSeenAnimation(true);
     }
+    if (localStorage.getItem("showBracket") === "true") setShowBracket(true);
+    setMounted(true);
   }, []);
 
   function handlePrint() {
@@ -36,6 +40,7 @@ export default function PrinterReveal({ name = "PLAYER", teams = [] }: PrinterRe
 
   return (
     <div className="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center">
+      {!mounted ? null : (<>
 
       {showBracket && (
         <BracketView
@@ -52,7 +57,11 @@ export default function PrinterReveal({ name = "PLAYER", teams = [] }: PrinterRe
         className={`fixed top-0 right-0 pt-8 pb-4 pr-4 z-[60] flex items-end ${!isFinished ? 'pointer-events-none' : ''}`}
       >
         <button
-          onClick={() => setShowBracket(!showBracket)}
+          onClick={() => {
+            const next = !showBracket;
+            setShowBracket(next);
+            localStorage.setItem("showBracket", String(next));
+          }}
           className="text-white/60 text-sm font-bold tracking-widest uppercase hover:text-white transition-colors py-1"
         >
           {showBracket ? "← Ticket" : "Bracket →"}
@@ -93,6 +102,7 @@ export default function PrinterReveal({ name = "PLAYER", teams = [] }: PrinterRe
         </motion.div>
       )}
 
+    </>)}
     </div>
   );
 }

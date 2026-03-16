@@ -70,8 +70,19 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
   const [loading, setLoading] = useState(true);
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
   const [filter, setFilter] = useState<"all" | "mine">("all");
+  const [hasManualRound, setHasManualRound] = useState(false);
 
   const userLabel = userTeamCount === 1 ? "My Team" : "My Teams";
+
+  useEffect(() => {
+    const savedFilter = localStorage.getItem("bracketFilter");
+    if (savedFilter === "all" || savedFilter === "mine") setFilter(savedFilter);
+    const savedRound = localStorage.getItem("bracketRoundIndex");
+    if (savedRound !== null) {
+      setCurrentRoundIndex(Number(savedRound));
+      setHasManualRound(true);
+    }
+  }, []);
 
   useEffect(() => {
     fetch(CSV_URL)
@@ -80,17 +91,19 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
         const parsed = parseCSV(text);
         setMatchups(parsed);
 
-        // Auto-advance: find first round with at least one incomplete matchup
-        const activeIndex = rounds.findIndex((round) => {
-          const roundMatchups = parsed.filter(
-            (m) => m.round === round && m.team1.name !== ""
-          );
-          return roundMatchups.length > 0 && roundMatchups.some((m) => m.winner === "");
-        });
-        setCurrentRoundIndex(activeIndex === -1 ? rounds.length - 1 : activeIndex);
+        if (!hasManualRound) {
+          // Auto-advance: find first round with at least one incomplete matchup
+          const activeIndex = rounds.findIndex((round) => {
+            const roundMatchups = parsed.filter(
+              (m) => m.round === round && m.team1.name !== ""
+            );
+            return roundMatchups.length > 0 && roundMatchups.some((m) => m.winner === "");
+          });
+          setCurrentRoundIndex(activeIndex === -1 ? rounds.length - 1 : activeIndex);
+        }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [hasManualRound]);
 
   const currentRound = rounds[currentRoundIndex];
   const roundMatchups = matchups.filter((m) => m.round === currentRound);
@@ -162,7 +175,7 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
           {/* Filter toggle — March Madness badge style */}
           <div className="flex items-stretch font-compact">
             <button
-              onClick={() => setFilter("all")}
+              onClick={() => { setFilter("all"); localStorage.setItem("bracketFilter", "all"); }}
               className={`px-3 py-1 flex items-center font-bold uppercase text-sm tracking-wide transition-colors cmyk-boxbleed ${
                 filter === "all"
                   ? "bg-[#F4F4F0] text-black border-[2px] border-black"
@@ -172,7 +185,7 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
               All Teams
             </button>
             <button
-              onClick={() => setFilter("mine")}
+              onClick={() => { setFilter("mine"); localStorage.setItem("bracketFilter", "mine"); }}
               className={`px-3 py-1 flex items-center font-bold uppercase text-sm tracking-wide transition-colors cmyk-boxbleed ${
                 filter === "mine"
                   ? "bg-[#F4F4F0] text-black border-[2px] border-black border-l-0"
@@ -221,7 +234,12 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
         <div className="absolute inset-0 pointer-events-none halftone-banner opacity-40 mix-blend-multiply z-0" />
         <div className="relative z-10 flex items-center justify-between px-6 py-[11px]">
           <button
-            onClick={() => setCurrentRoundIndex((i) => Math.max(0, i - 1))}
+            onClick={() => {
+              const next = Math.max(0, currentRoundIndex - 1);
+              setCurrentRoundIndex(next);
+              setHasManualRound(true);
+              localStorage.setItem("bracketRoundIndex", String(next));
+            }}
             className="text-white disabled:text-white/30 transition-colors"
             disabled={currentRoundIndex === 0}
           >
@@ -233,7 +251,12 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
           </span>
 
           <button
-            onClick={() => setCurrentRoundIndex((i) => Math.min(rounds.length - 1, i + 1))}
+            onClick={() => {
+              const next = Math.min(rounds.length - 1, currentRoundIndex + 1);
+              setCurrentRoundIndex(next);
+              setHasManualRound(true);
+              localStorage.setItem("bracketRoundIndex", String(next));
+            }}
             className="text-white disabled:text-white/30 transition-colors"
             disabled={currentRoundIndex === rounds.length - 1}
           >
