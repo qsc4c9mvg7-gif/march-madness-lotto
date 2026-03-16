@@ -93,32 +93,54 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
   }, []);
 
   const currentRound = rounds[currentRoundIndex];
-
-  // Filter by current round, then group by region
   const roundMatchups = matchups.filter((m) => m.round === currentRound);
 
-  const filteredMatchups =
-    filter === "mine"
-      ? roundMatchups.filter(
-          (m) =>
-            m.team1.owner.toUpperCase().includes(userName.toUpperCase()) ||
-            m.team2.owner.toUpperCase().includes(userName.toUpperCase())
-        )
-      : roundMatchups;
+  const ownerMatch = (m: Matchup) =>
+    m.team1.owner.toUpperCase().includes(userName.toUpperCase()) ||
+    m.team2.owner.toUpperCase().includes(userName.toUpperCase());
 
-  // Group by region, preserving CSV order
-  const regions = filteredMatchups.reduce<{ name: string; matchups: Matchup[] }[]>(
-    (acc, m) => {
-      const existing = acc.find((r) => r.name === m.region);
-      if (existing) {
-        existing.matchups.push(m);
-      } else {
-        acc.push({ name: m.region, matchups: [m] });
-      }
-      return acc;
-    },
-    []
-  );
+  const toSlot = (m: Matchup): Matchup | null =>
+    filter === "all" || ownerMatch(m) ? m : null;
+
+  // Fixed slot counts per round
+  const REGION_SLOTS: Record<string, number> = {
+    "Round of 64": 8,
+    "Round of 32": 4,
+    "Sweet 16": 2,
+    "Elite 8": 1,
+  };
+  const REGION_ORDER = ["East", "South", "West", "Midwest"];
+
+  type Section = { label: string | null; slots: (Matchup | null)[] };
+  let displaySections: Section[];
+
+  if (REGION_SLOTS[currentRound] !== undefined) {
+    // Regional rounds: pad each region to its expected slot count
+    const count = REGION_SLOTS[currentRound];
+    displaySections = REGION_ORDER.map((region) => {
+      const regionMatchups = roundMatchups.filter((m) => m.region === region);
+      const slots: (Matchup | null)[] = Array.from(
+        { length: count },
+        (_, i) => (regionMatchups[i] ? toSlot(regionMatchups[i]) : null)
+      );
+      return { label: region, slots };
+    });
+  } else if (currentRound === "Final 4") {
+    const slots: (Matchup | null)[] = Array.from(
+      { length: 2 },
+      (_, i) => (roundMatchups[i] ? toSlot(roundMatchups[i]) : null)
+    );
+    displaySections = [{ label: null, slots }];
+  } else if (currentRound === "Championship") {
+    const slots: (Matchup | null)[] = [
+      roundMatchups[0] ? toSlot(roundMatchups[0]) : null,
+    ];
+    displaySections = [{ label: null, slots }];
+  } else {
+    // First Four — show whatever is in the CSV
+    const slots = roundMatchups.map(toSlot);
+    displaySections = slots.length > 0 ? [{ label: null, slots }] : [];
+  }
 
   return (
     <>
@@ -161,30 +183,35 @@ export default function BracketView({ userName, userTeamCount }: BracketProps) {
               Loading…
             </span>
           </div>
-        ) : regions.length === 0 ? (
-          <div className="flex items-center justify-center h-40">
-            <span className="text-white/40 text-xs font-bold tracking-widest uppercase">
-              No matchups
-            </span>
-          </div>
         ) : (
-          regions.map((region) => (
-            <div key={region.name}>
-              {/* Sticky Region Header */}
-              <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md py-2 border-y border-white/10 mb-4">
-                <h2 className="text-center text-white text-xs font-bold tracking-widest uppercase">
-                  {region.name}
-                </h2>
-              </div>
+          displaySections.map((section, sIdx) => (
+            <div key={section.label ?? `section-${sIdx}`}>
+              {/* Sticky Region Header — only for regional rounds */}
+              {section.label && (
+                <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md py-2 border-y border-white/10 mb-4">
+                  <h2 className="text-center text-white text-xs font-bold tracking-widest uppercase">
+                    {section.label}
+                  </h2>
+                </div>
+              )}
 
               {/* Matchup Cards */}
-              {region.matchups.map((matchup, idx) => {
+              {section.slots.map((matchup, idx) => {
+                if (!matchup) {
+                  return (
+                    <div
+                      key={`placeholder-${sIdx}-${idx}`}
+                      className="border-[3px] border-dashed border-white/20 rounded-xl mx-4 mb-4 h-[120px]"
+                    />
+                  );
+                }
+
                 const team1Won = matchup.winner !== "" && matchup.winner === matchup.team1.name;
                 const team2Won = matchup.winner !== "" && matchup.winner === matchup.team2.name;
 
                 return (
                   <div
-                    key={matchup.gameId || `${region.name}-${idx}`}
+                    key={matchup.gameId || `${section.label}-${idx}`}
                     className="bg-[#F4F4F0] paper-texture border-[3px] border-black rounded-xl mx-4 mb-4 p-4 relative overflow-hidden font-compact"
                   >
                     <div className="absolute inset-0 pointer-events-none halftone-circle opacity-50 z-0" />
